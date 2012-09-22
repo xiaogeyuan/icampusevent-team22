@@ -1,4 +1,4 @@
-package edu.usc.servlets;
+package edu.usc.csci587.icampusevent.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,7 +16,6 @@ import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
 /**
  * Servlet implementation class HelloWorldServlet
  */
-@WebServlet("/HelloWorldServlet")
 public class HelloWorldServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.usc.cs587.examples.objects;
+package edu.usc.csci587.icampusevent.objects;
 
 /**
  * @author Ling

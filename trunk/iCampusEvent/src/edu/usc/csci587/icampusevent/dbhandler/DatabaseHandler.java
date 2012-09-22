@@ -12,7 +12,7 @@ import java.util.List;
 
 import oracle.jdbc.OracleConnection;
 import edu.usc.cs587.examples.Constants;
-import edu.usc.cs587.examples.objects.UserMessage;
+import edu.usc.csci587.icampusevent.objects.UserMessage;
 
 /**
  * @author Ling
