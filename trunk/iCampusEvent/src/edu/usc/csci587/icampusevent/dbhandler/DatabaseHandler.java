@@ -77,21 +77,19 @@ public class DatabaseHandler {
 		}
 	}
 	
-	public List<UserMessage> retrieveAllRecords () {
+	public List<String> retrieveAllRecords () {
 		if (this.connection == null) {
 			return null;
 		}
-		String sqlStmt = "SELECT * FROM EXAMPLE";
+		String sqlStmt = "SELECT * FROM USERS";
 		
 		try {
 			PreparedStatement pstmt = this.connection.prepareStatement(sqlStmt);
 			ResultSet rs = pstmt.executeQuery();
-			List<UserMessage> ret = new ArrayList<UserMessage>();
+			List<String> ret = new ArrayList<String>();
 			while (rs != null && rs.next()) {
-				long pubDate = rs.getLong("PUBDATE");
-				String userid = rs.getString("USERID");
-				String message = rs.getString("MESSAGE");
-				ret.add(new UserMessage(userid, message, pubDate));
+				String userid = rs.getString("USER_ID");
+				ret.add(userid);
 			}
 			pstmt.close();
 			return ret;
@@ -100,23 +98,23 @@ public class DatabaseHandler {
 			return null;
 		}
 	}
-	/*
-	 * this is to test whether the java program can write data to database
-	 */
-	public static void main(String[] args) {
-		DatabaseHandler handler = new DatabaseHandler();
-		try {
-			//insert an record to the database table 
-//			handler.insertRecordToDB("Ling Hu", "Helloworld!!", System.currentTimeMillis());
-			//retrieve all records from the database table 
-			List<UserMessage> results = handler.retrieveAllRecords();
-			for (UserMessage ret : results) {
-				System.out.println(ret.getUsername()+"\t"+ ret.getMessage()+"\t"
-						+Constants.getTimeAsString(ret.getPubdate()));
-			}
-			handler.closeConnection();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	/*
+//	 * this is to test whether the java program can write data to database
+//	 */
+//	public static void main(String[] args) {
+//		DatabaseHandler handler = new DatabaseHandler();
+//		try {
+//			//insert an record to the database table 
+////			handler.insertRecordToDB("Ling Hu", "Helloworld!!", System.currentTimeMillis());
+//			//retrieve all records from the database table 
+//			List<UserMessage> results = handler.retrieveAllRecords();
+//			for (UserMessage ret : results) {
+//				System.out.println(ret.getUsername()+"\t"+ ret.getMessage()+"\t"
+//						+Constants.getTimeAsString(ret.getPubdate()));
+//			}
+//			handler.closeConnection();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 }

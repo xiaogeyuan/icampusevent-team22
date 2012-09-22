@@ -14,5 +14,14 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/classes12.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/google-gson-stream-1.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gson-1.7.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-lib-2.4-jdk15.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-org.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/sdoapi.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/stdlibrary.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
