@@ -16,6 +16,7 @@ import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
 /**
  * Servlet implementation class HelloWorldServlet
  */
+@WebServlet("/HelloWorldServlet")
 public class HelloWorldServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -41,22 +42,22 @@ public class HelloWorldServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		out.println("Hello World");
-		
+
 		DatabaseHandler handler = new DatabaseHandler();
-//			response.setContentType("application/string");
-//			response.setContentType("text/x-json;charset=UTF-8");           
-		response.setContentType("text/html;charset=UTF-8");           
+		// response.setContentType("application/string");
+		// response.setContentType("text/x-json;charset=UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 
 		String resultString = "";
 		List<String> ret = handler.retrieveAllRecords();
 		if (ret.size() == 0) {
-			
-		}else {
+
+		} else {
 			Gson gson = new Gson();
 			resultString = gson.toJson(ret);
 		}
-		
+
 		System.out.println(resultString);
 		out.write(resultString);
 	}
@@ -66,7 +67,7 @@ public class HelloWorldServlet extends HttpServlet {
 	 *      response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+
 	}
 
 }
