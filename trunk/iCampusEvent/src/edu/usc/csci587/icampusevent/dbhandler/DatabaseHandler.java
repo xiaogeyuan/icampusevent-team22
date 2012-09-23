@@ -13,10 +13,11 @@ import java.util.List;
 import oracle.jdbc.OracleConnection;
 
 /**
- * @author Ling
+ * @author Giorgos & Xiaoge
  * 
  */
 public class DatabaseHandler {
+	
 	private static final String HOST = "128.125.163.168";
 	private static final String PORT = "1521";
 	private static final String USERNAME = "team22";
@@ -31,7 +32,7 @@ public class DatabaseHandler {
 	 */
 	public DatabaseHandler() {
 		String url = URL + HOST + ":" + PORT + ":" + DBNAME;
-		;
+		
 		try {
 			DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
 			connection = (OracleConnection) DriverManager.getConnection(url, USERNAME, PASSWORD);
@@ -45,6 +46,7 @@ public class DatabaseHandler {
 		if (this.connection != null) {
 			try {
 				this.connection.close();
+				this.connection=null;
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
