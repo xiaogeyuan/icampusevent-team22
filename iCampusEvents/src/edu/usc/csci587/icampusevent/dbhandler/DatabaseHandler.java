@@ -128,18 +128,18 @@ public class DatabaseHandler {
 	// }
 	// }
 
-	public String get_search_events_by_area_query(String p_USER_ID, JGeometry p_SHAPE, double p_DISTANCE, String shape_type) throws SQLException {
+	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, double p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
 
 		if (this.connection == null) {
 			return null;
 		}
 
 		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_BY_AREA(?, ?, ?, ?) }");
-		proc.setString(1, p_USER_ID);
-		STRUCT shape = JGeometry.store(p_SHAPE, connection);
-		proc.setObject(2, shape);
-		proc.setDouble(3, p_DISTANCE);
-		proc.setString(4, shape_type);
+		proc.setString("p_USER_ID", p_USER_ID);
+		STRUCT p_SHAPE = JGeometry.store(shape, connection);
+		proc.setObject("p_SHAPE", p_SHAPE);
+		proc.setDouble("p_DISTANCE", p_DISTANCE);
+		proc.setString("p_SHAPE_TYPE", p_SHAPE_TYPE);
 		ResultSet rs = proc.executeQuery();
 
 		String ret = "";
