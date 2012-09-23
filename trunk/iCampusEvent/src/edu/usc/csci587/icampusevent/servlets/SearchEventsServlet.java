@@ -1,44 +1,72 @@
 package edu.usc.csci587.icampusevent.servlets;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
+import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
+import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
+import oracle.spatial.geometry.JGeometry;
 
 /**
  * Servlet implementation class SearchEventsServlet
  */
-@WebServlet(
-		description = "Search functionality on events", 
-		urlPatterns = { 
-				"/SearchEventsServlet", 
-				"/SearchEvents"
-		})
-public class SearchEventsServlet extends HttpServlet {
+public class SearchEventsServlet extends QueryServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public SearchEventsServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	@Override
+	protected String executeQuery(HttpServletRequest request) {
+		JSONObject jObj = null;
+		try {
+			jObj = new JSONObject(request.getParameter("request"));
+
+			switch (jObj.getString("req_type")) {
+			case "search_events_by_area":
+				return get_search_events_by_area_query(jObj);
+			case "search_events_nearby":
+				break;
+			case "search_events_by_filter":
+				break;
+			default:
+				return null;
+			}
+
+		} catch (JSONException e) {
+			return null;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-	}
+	private String get_search_events_by_area_query(JSONObject jObj) throws JSONException, SQLException {
+		String p_USER_ID = jObj.getString("uid");
+		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
+		DatabaseHandler handler = new DatabaseHandler();
+		String returnString = null;
+		switch (parametersObj.getString("shape_type")) {
+		case "circle":
+			double p_DISTANCE = parametersObj.getDouble("distance");
 
+			Double lat = parametersObj.getDouble("lat");
+			Double lon = parametersObj.getDouble("lon");
+			JGeometry p_SHAPE = new JGeometry(lat, lon, 8307);
+
+			returnString = handler.get_search_events_by_area_query(p_USER_ID, p_SHAPE, p_DISTANCE, "circle");
+
+			break;
+		case "rectangle":
+			Double minLat = parametersObj.getDouble("minLat");
+			Double minLon = parametersObj.getDouble("minLon");
+			Double maxLat = parametersObj.getDouble("maxLat");
+			Double maxLon = parametersObj.getDouble("maxLon");
+			break;
+		case "trajectory":
+			String p_DISTANCE1 = parametersObj.getString("distance");
+			break;
+		}
+		handler.closeConnection();
+		return returnString;
+	}
 }

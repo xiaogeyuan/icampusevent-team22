@@ -20,7 +20,6 @@
     <servlet-name>HelloWorldServlet</servlet-name>
     <url-pattern>/HelloWorldServlet</url-pattern>
   </servlet-mapping>
-  
   <servlet>
     <javaee:description>Search functionality on events</javaee:description>
     <javaee:display-name>SearchEventsServlet</javaee:display-name>
