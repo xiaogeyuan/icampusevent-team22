@@ -106,10 +106,10 @@ public class DatabaseHandler {
 		}
 	}
 
-	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, float p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
+	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, double p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
 
 		Response resp = null;
-		
+
 		if (this.connection == null) {
 			resp = new Response("Error", "Unable to reach server. Try again later.");
 			return new Gson().toJson(resp);
@@ -119,19 +119,96 @@ public class DatabaseHandler {
 		proc.setString("p_USER_ID", p_USER_ID);
 		STRUCT p_SHAPE = JGeometry.store(shape, connection);
 		proc.setObject("p_SHAPE", p_SHAPE);
-		proc.setFloat("p_DISTANCE", p_DISTANCE);
+		proc.setDouble("p_DISTANCE", p_DISTANCE);
 		proc.setString("p_SHAPE_TYPE", p_SHAPE_TYPE);
-		
-		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
-		
-		proc.execute();
-		
-		ResultSet rs = (ResultSet)proc.getObject("o_CURSOR");
 
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found. Try another area");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	public String get_search_events_nearby_query(String p_USER_ID, int p_LIMIT) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_NEARBY(?, ?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		proc.setInt("p_LIMIT", p_LIMIT);
+
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found. Try another area");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	public String get_search_events_by_filter_query(String p_USER_ID, String p_KEYWORDS, String p_FILTERS) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_BY_FILTER(?, ?, ?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		proc.setString("p_KEYWORDS", p_KEYWORDS);
+		proc.setString("p_FILTERS", p_FILTERS);
+
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found. Try another area");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	private List<Event> getEventsFromResultSet(ResultSet rs) throws SQLException {
 		List<Event> EventsList = new ArrayList<Event>();
 
 		while (rs != null && rs.next()) {
-			
+
 			String CATEGORY_NAME = rs.getString("CATEGORY_NAME");
 			String CATEGORY_DESCRIPTION = rs.getString("CATEGORY_DESCRIPTION");
 
@@ -142,25 +219,38 @@ public class DatabaseHandler {
 			String EVENT_DESCRIPTION = rs.getString("EVENT_DESCRIPTION");
 			String IMAGE_URL = rs.getString("IMAGE_URL");
 			String LINK = rs.getString("LINK");
-			
+			Double DISTANCE_IN_MILES = rs.getDouble("DISTANCE_IN_MILES");
+
 			STRUCT st = (oracle.sql.STRUCT) rs.getObject("LOCATION");
 			JGeometry LOCATION_POINT = JGeometry.load(st);
-			
-			double[] LOCATION=LOCATION_POINT.getPoint();
-			
+
+			double[] LOCATION = LOCATION_POINT.getPoint();
+
 			Event e = new Event(CATEGORY_NAME, CATEGORY_DESCRIPTION, EVENT_ID, EVENT_NAME, START_DATE, END_DATE, EVENT_DESCRIPTION, IMAGE_URL, LINK,
-					LOCATION);
+					LOCATION, DISTANCE_IN_MILES);
 			EventsList.add(e);
 		}
-
-		proc.close();
-
-		if (EventsList.size() == 0) {
-			resp = new Response("Warning", "No results found. Try another area");
-		} else {
-			resp = new Response("Success", EventsList);
-		}
-		
-		return new Gson().toJson(resp);
+		return EventsList;
 	}
+
+	public boolean test(JGeometry shape) {
+		if (this.connection == null) {
+			return false;
+		}
+		String sqlStmt = "INSERT INTO TEST VALUES (?)";
+		try {
+			PreparedStatement pstmt = this.connection.prepareStatement(sqlStmt);
+			STRUCT p_SHAPE = JGeometry.store(shape, connection);
+			pstmt.setObject(1, p_SHAPE);
+
+			pstmt.execute();
+			pstmt.close();
+			return true;
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+
+	}
+
 }
