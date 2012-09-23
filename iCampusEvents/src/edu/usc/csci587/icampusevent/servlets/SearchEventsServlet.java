@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
-import oracle.spatial.geometry.JGeometry;
 
 /**
  * Servlet implementation class SearchEventsServlet
@@ -55,7 +54,7 @@ public class SearchEventsServlet extends QueryServlet {
 
 			Double lat = parametersObj.getDouble("lat");
 			Double lon = parametersObj.getDouble("lon");
-			JGeometry p_SHAPE = new JGeometry(lat, lon, 8307);
+			JGeometry p_SHAPE = new JGeometry(lon,lat, 8307);
 
 			returnString = handler.get_search_events_by_area_query(p_USER_ID, p_SHAPE, p_DISTANCE, "circle");
 

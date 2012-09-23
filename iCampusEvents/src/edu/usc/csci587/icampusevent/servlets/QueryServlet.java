@@ -33,7 +33,6 @@ public abstract class QueryServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-		out.println("Hello World");
 
 		response.setContentType("application/json");
 		response.setHeader("Cache-Control", "no-cache");
