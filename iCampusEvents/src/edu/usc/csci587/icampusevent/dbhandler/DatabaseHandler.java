@@ -4,11 +4,11 @@
 package edu.usc.csci587.icampusevent.dbhandler;
 
 import java.sql.CallableStatement;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import oracle.jdbc.OracleConnection;
@@ -17,6 +17,7 @@ import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 import com.google.gson.Gson;
 import edu.usc.csci587.icampusevent.objects.Event;
+import edu.usc.csci587.icampusevent.objects.Response;
 
 /**
  * @author Giorgos & Xiaoge
@@ -105,53 +106,13 @@ public class DatabaseHandler {
 		}
 	}
 
-	// /*
-	// * this is to test whether the java program can write data to database
-	// */
-	// public static void main(String[] args) {
-	// DatabaseHandler handler = new DatabaseHandler();
-	// try {
-	// //insert an record to the database table
-	// // handler.insertRecordToDB("Ling Hu", "Helloworld!!",
-	// System.currentTimeMillis());
-	// //retrieve all records from the database table
-	// List<UserMessage> results = handler.retrieveAllRecords();
-	// for (UserMessage ret : results) {
-	// System.out.println(ret.getUsername()+"\t"+ ret.getMessage()+"\t"
-	// +Constants.getTimeAsString(ret.getPubdate()));
-	// }
-	// handler.closeConnection();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-
-	public String test() throws SQLException {
-
-		if (this.connection == null) {
-			return null;
-		}
-
-		JGeometry shape = new JGeometry(-118.28340,34.01850, 8307);
-		
-		CallableStatement proc = connection.prepareCall("{ call SP_TEST(?) }");
-		
-		STRUCT p_LOCATION = JGeometry.store(shape, connection);
-		proc.setObject("p_LOCATION", p_LOCATION);
-		proc.executeQuery();
-
-		String ret = "";
-		proc.close();
-
-		
-		
-		return ret;
-	}
-	
 	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, float p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
 
+		Response resp = null;
+		
 		if (this.connection == null) {
-			return null;
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
 		}
 
 		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_BY_AREA(?, ?, ?, ?, ?) }");
@@ -166,7 +127,6 @@ public class DatabaseHandler {
 		proc.execute();
 		
 		ResultSet rs = (ResultSet)proc.getObject("o_CURSOR");
-		String ret = "";
 
 		List<Event> EventsList = new ArrayList<Event>();
 
@@ -177,8 +137,8 @@ public class DatabaseHandler {
 
 			long EVENT_ID = rs.getLong("EVENT_ID");
 			String EVENT_NAME = rs.getString("EVENT_NAME");
-			Date START_DATE = rs.getDate("START_DATE");
-			Date END_DATE = rs.getDate("END_DATE");
+			Timestamp START_DATE = rs.getTimestamp("START_DATE");
+			Timestamp END_DATE = rs.getTimestamp("END_DATE");
 			String EVENT_DESCRIPTION = rs.getString("EVENT_DESCRIPTION");
 			String IMAGE_URL = rs.getString("IMAGE_URL");
 			String LINK = rs.getString("LINK");
@@ -196,12 +156,11 @@ public class DatabaseHandler {
 		proc.close();
 
 		if (EventsList.size() == 0) {
-
+			resp = new Response("Warning", "No results found. Try another area");
 		} else {
-			Gson gson = new Gson();
-			ret = gson.toJson(EventsList);
+			resp = new Response("Success", EventsList);
 		}
 		
-		return ret;
+		return new Gson().toJson(resp);
 	}
 }

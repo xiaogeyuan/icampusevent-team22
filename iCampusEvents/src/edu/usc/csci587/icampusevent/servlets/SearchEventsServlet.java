@@ -10,7 +10,10 @@ import oracle.spatial.geometry.JGeometry;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+
 import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
+import edu.usc.csci587.icampusevent.objects.Response;
 
 /**
  * Servlet implementation class SearchEventsServlet
@@ -37,10 +40,9 @@ public class SearchEventsServlet extends QueryServlet {
 			}
 
 		} catch (JSONException e) {
-			return null;
+			return new Gson().toJson( new Response("Error", "Unable to parse request parameters."));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return new Gson().toJson( new Response("Error", "Unable to reach server. Try again later."));
 		}
 
 		return null;
