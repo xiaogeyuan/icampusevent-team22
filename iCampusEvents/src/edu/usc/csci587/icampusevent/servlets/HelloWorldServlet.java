@@ -2,6 +2,7 @@ package edu.usc.csci587.icampusevent.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -49,17 +50,24 @@ public class HelloWorldServlet extends HttpServlet {
 		response.setContentType("text/html;charset=UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 
-		String resultString = "";
-		List<String> ret = handler.retrieveAllRecords();
-		if (ret.size() == 0) {
-
-		} else {
-			Gson gson = new Gson();
-			resultString = gson.toJson(ret);
+		try {
+			handler.test();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		System.out.println(resultString);
-		out.write(resultString);
+		
+//		String resultString = "";
+//		List<String> ret = handler.retrieveAllRecords();
+//		if (ret.size() == 0) {
+//
+//		} else {
+//			Gson gson = new Gson();
+//			resultString = gson.toJson(ret);
+//		}
+//
+//		System.out.println(resultString);
+//		out.write(resultString);
 	}
 
 	/**

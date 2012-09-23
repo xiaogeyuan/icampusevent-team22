@@ -5,8 +5,6 @@ package edu.usc.csci587.icampusevent.objects;
 
 import java.sql.Date;
 
-import oracle.spatial.geometry.JGeometry;
-
 
 public class Event {
 	
@@ -20,7 +18,7 @@ public class Event {
 	private String EVENT_DESCRIPTION;
 	private String IMAGE_URL;
 	private String LINK;
-	private JGeometry LOCATION;
+	private double[] LOCATION;
 	
 	public String getCATEGORY_NAME() {
 		return CATEGORY_NAME;
@@ -49,12 +47,12 @@ public class Event {
 	public String getLINK() {
 		return LINK;
 	}
-	public JGeometry getLOCATION() {
+	public double[] getLOCATION() {
 		return LOCATION;
 	}
 	
 	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, long EVENT_ID, String EVENT_NAME, Date START_DATE, Date END_DATE,
-			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, JGeometry LOCATION) {
+			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, double[] LOCATION) {
 		super();
 		this.CATEGORY_NAME = CATEGORY_NAME;
 		this.CATEGORY_DESCRIPTION = CATEGORY_DESCRIPTION;
