@@ -2,11 +2,14 @@ package edu.usc.csci587.icampusevent.servlets;
 
 import java.sql.SQLException;
 
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+
+import oracle.spatial.geometry.JGeometry;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
 
 /**
@@ -50,11 +53,11 @@ public class SearchEventsServlet extends QueryServlet {
 		String returnString = null;
 		switch (parametersObj.getString("shape_type")) {
 		case "circle":
-			double p_DISTANCE = parametersObj.getDouble("distance");
+			float p_DISTANCE = (float)parametersObj.getDouble("distance");
 
 			Double lat = parametersObj.getDouble("lat");
 			Double lon = parametersObj.getDouble("lon");
-			JGeometry p_SHAPE = new JGeometry(lon,lat, 8307);
+			JGeometry p_SHAPE = new JGeometry(lon, lat, 8307);
 
 			returnString = handler.get_search_events_by_area_query(p_USER_ID, p_SHAPE, p_DISTANCE, "circle");
 

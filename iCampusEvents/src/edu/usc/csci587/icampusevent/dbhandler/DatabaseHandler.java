@@ -11,14 +11,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.Gson;
-
-import edu.usc.csci587.icampusevent.objects.Event;
-
 import oracle.jdbc.OracleConnection;
+import oracle.jdbc.driver.OracleTypes;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
+import com.google.gson.Gson;
+import edu.usc.csci587.icampusevent.objects.Event;
 
 /**
  * @author Giorgos & Xiaoge
@@ -128,39 +126,67 @@ public class DatabaseHandler {
 	// }
 	// }
 
-	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, double p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
+	public String test() throws SQLException {
 
 		if (this.connection == null) {
 			return null;
 		}
 
-		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_BY_AREA(?, ?, ?, ?) }");
+		JGeometry shape = new JGeometry(-118.28340,34.01850, 8307);
+		
+		CallableStatement proc = connection.prepareCall("{ call SP_TEST(?) }");
+		
+		STRUCT p_LOCATION = JGeometry.store(shape, connection);
+		proc.setObject("p_LOCATION", p_LOCATION);
+		proc.executeQuery();
+
+		String ret = "";
+		proc.close();
+
+		
+		
+		return ret;
+	}
+	
+	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, float p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
+
+		if (this.connection == null) {
+			return null;
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_SEARCH_EVENTS_BY_AREA(?, ?, ?, ?, ?) }");
 		proc.setString("p_USER_ID", p_USER_ID);
 		STRUCT p_SHAPE = JGeometry.store(shape, connection);
 		proc.setObject("p_SHAPE", p_SHAPE);
-		proc.setDouble("p_DISTANCE", p_DISTANCE);
+		proc.setFloat("p_DISTANCE", p_DISTANCE);
 		proc.setString("p_SHAPE_TYPE", p_SHAPE_TYPE);
-		ResultSet rs = proc.executeQuery();
-
+		
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+		
+		proc.execute();
+		
+		ResultSet rs = (ResultSet)proc.getObject("o_CURSOR");
 		String ret = "";
 
 		List<Event> EventsList = new ArrayList<Event>();
 
 		while (rs != null && rs.next()) {
 			
-			String CATEGORY_NAME = rs.getString("o_CATEGORY_NAME");
-			String CATEGORY_DESCRIPTION = rs.getString("o_CATEGORY_DESCRIPTION");
+			String CATEGORY_NAME = rs.getString("CATEGORY_NAME");
+			String CATEGORY_DESCRIPTION = rs.getString("CATEGORY_DESCRIPTION");
 
-			long EVENT_ID = rs.getLong("o_EVENT_ID");
-			String EVENT_NAME = rs.getString("o_EVENT_NAME");
-			Date START_DATE = rs.getDate("o_START_DATE");
-			Date END_DATE = rs.getDate("o_END_DATE");
-			String EVENT_DESCRIPTION = rs.getString("o_EVENT_DESCRIPTION");
-			String IMAGE_URL = rs.getString("o_IMAGE_URL");
-			String LINK = rs.getString("o_LINK");
+			long EVENT_ID = rs.getLong("EVENT_ID");
+			String EVENT_NAME = rs.getString("EVENT_NAME");
+			Date START_DATE = rs.getDate("START_DATE");
+			Date END_DATE = rs.getDate("END_DATE");
+			String EVENT_DESCRIPTION = rs.getString("EVENT_DESCRIPTION");
+			String IMAGE_URL = rs.getString("IMAGE_URL");
+			String LINK = rs.getString("LINK");
 			
-			STRUCT st = (oracle.sql.STRUCT) rs.getObject("o_LOCATION");
-			JGeometry LOCATION = JGeometry.load(st);
+			STRUCT st = (oracle.sql.STRUCT) rs.getObject("LOCATION");
+			JGeometry LOCATION_POINT = JGeometry.load(st);
+			
+			double[] LOCATION=LOCATION_POINT.getPoint();
 			
 			Event e = new Event(CATEGORY_NAME, CATEGORY_DESCRIPTION, EVENT_ID, EVENT_NAME, START_DATE, END_DATE, EVENT_DESCRIPTION, IMAGE_URL, LINK,
 					LOCATION);
@@ -175,8 +201,6 @@ public class DatabaseHandler {
 			Gson gson = new Gson();
 			ret = gson.toJson(EventsList);
 		}
-
-		System.out.println(ret);
 		
 		return ret;
 	}

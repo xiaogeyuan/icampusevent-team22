@@ -41,6 +41,7 @@ public abstract class QueryServlet extends HttpServlet {
 
 		System.out.println(query);
 		out.write(query);
+		
 	}
 
 	protected abstract String executeQuery(HttpServletRequest req);
