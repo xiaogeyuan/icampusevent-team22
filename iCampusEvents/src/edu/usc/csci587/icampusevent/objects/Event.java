@@ -19,6 +19,7 @@ public class Event {
 	private String IMAGE_URL;
 	private String LINK;
 	private double[] LOCATION;
+	private double DISTANCE_IN_MILES;
 	
 	public String getCATEGORY_NAME() {
 		return CATEGORY_NAME;
@@ -50,9 +51,12 @@ public class Event {
 	public double[] getLOCATION() {
 		return LOCATION;
 	}
+	public double getDISTANCE_IN_MILES() {
+		return DISTANCE_IN_MILES;
+	}
 	
 	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, long EVENT_ID, String EVENT_NAME, Timestamp START_DATE, Timestamp END_DATE,
-			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, double[] LOCATION) {
+			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, double[] LOCATION, Double DISTANCE_IN_MILES) {
 		super();
 		this.CATEGORY_NAME = CATEGORY_NAME;
 		this.CATEGORY_DESCRIPTION = CATEGORY_DESCRIPTION;
@@ -64,6 +68,7 @@ public class Event {
 		this.IMAGE_URL = IMAGE_URL;
 		this.LINK = LINK;
 		this.LOCATION = LOCATION;
+		this.DISTANCE_IN_MILES = DISTANCE_IN_MILES;
 	}
 	
 	
