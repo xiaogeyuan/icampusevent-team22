@@ -3,7 +3,7 @@
  */
 package edu.usc.csci587.icampusevent.objects;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 
 public class Event {
@@ -13,8 +13,8 @@ public class Event {
 	
 	private long EVENT_ID;
 	private String EVENT_NAME;
-	private Date START_DATE;
-	private Date END_DATE;
+	private Timestamp START_DATE;
+	private Timestamp END_DATE;
 	private String EVENT_DESCRIPTION;
 	private String IMAGE_URL;
 	private String LINK;
@@ -32,10 +32,10 @@ public class Event {
 	public String getEVENT_NAME() {
 		return EVENT_NAME;
 	}
-	public Date getSTART_DATE() {
+	public Timestamp getSTART_DATE() {
 		return START_DATE;
 	}
-	public Date getEND_DATE() {
+	public Timestamp getEND_DATE() {
 		return END_DATE;
 	}
 	public String getEVENT_DESCRIPTION() {
@@ -51,7 +51,7 @@ public class Event {
 		return LOCATION;
 	}
 	
-	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, long EVENT_ID, String EVENT_NAME, Date START_DATE, Date END_DATE,
+	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, long EVENT_ID, String EVENT_NAME, Timestamp START_DATE, Timestamp END_DATE,
 			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, double[] LOCATION) {
 		super();
 		this.CATEGORY_NAME = CATEGORY_NAME;
