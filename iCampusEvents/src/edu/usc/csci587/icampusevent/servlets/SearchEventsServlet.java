@@ -27,17 +27,15 @@ public class SearchEventsServlet extends QueryServlet {
 		JSONObject jObj = null;
 		try {
 			jObj = new JSONObject(request.getParameter("request"));
-
-			switch (jObj.getString("req_type")) {
-			case "search_events_by_area":
+			String req_type = jObj.getString("req_type");
+			if (req_type.compareToIgnoreCase("search_events_by_area") == 0)
 				return get_search_events_by_area_query(jObj);
-			case "search_events_nearby":
+			else if (req_type.compareToIgnoreCase("search_events_nearby") == 0)
 				return get_search_events_nearby(jObj);
-			case "search_events_by_filter":
+			else if (req_type.compareToIgnoreCase("search_events_by_filter") == 0)
 				return get_search_events_by_filter(jObj);
-			default:
+			else
 				return null;
-			}
 
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
@@ -45,9 +43,6 @@ public class SearchEventsServlet extends QueryServlet {
 			return new Gson().toJson(new Response("Error", "Unable to reach server. Try again later."));
 		}
 	}
-
-
-
 
 	private String get_search_events_by_area_query(JSONObject jObj) throws JSONException, SQLException {
 		String p_USER_ID = jObj.getString("uid");
@@ -58,8 +53,9 @@ public class SearchEventsServlet extends QueryServlet {
 		String p_SHAPE_TYPE = null;
 		double p_DISTANCE = 0.0;
 
-		switch (parametersObj.getString("shape_type")) {
-		case "circle":
+		String shape_type = parametersObj.getString("shape_type");
+		
+		if (shape_type.compareToIgnoreCase("circle") == 0){
 			p_DISTANCE = parametersObj.getDouble("distance");
 
 			Double lat = parametersObj.getDouble("lat");
@@ -67,10 +63,8 @@ public class SearchEventsServlet extends QueryServlet {
 
 			p_SHAPE = new JGeometry(lon, lat, 8307);
 			p_SHAPE_TYPE = "circle";
-
-			break;
-		case "rectangle":
-
+		}
+		else if (shape_type.compareToIgnoreCase("rectangle") == 0){
 			Double minLat = parametersObj.getDouble("minLat");
 			Double minLon = parametersObj.getDouble("minLon");
 			Double maxLat = parametersObj.getDouble("maxLat");
@@ -78,14 +72,12 @@ public class SearchEventsServlet extends QueryServlet {
 
 			p_SHAPE = new JGeometry(minLon, minLat, maxLon, maxLat, 8307);
 			p_SHAPE_TYPE = "rectangle";
-
-			break;
-		case "trajectory":
+		}
+		else if (shape_type.compareToIgnoreCase("trajectory") == 0){
 			p_DISTANCE = parametersObj.getDouble("distance");
 
 			String trajectory = parametersObj.getString("trajectory").replace(" ", "");
 
-			
 			String[] trajectoryArray = trajectory.split(",");
 			if (trajectoryArray.length % 2 == 1)
 				throw new JSONException("A value is missing");
@@ -96,16 +88,12 @@ public class SearchEventsServlet extends QueryServlet {
 
 			p_SHAPE = new JGeometry(2002, 8307, new int[] { 1, 2, 1 }, trajectoryArrayDouble);
 			p_SHAPE_TYPE = "trajectory";
-			
-			break;
-		default:
-			break;
 		}
+
 		returnString = handler.get_search_events_by_area_query(p_USER_ID, p_SHAPE, p_DISTANCE, p_SHAPE_TYPE);
 		handler.closeConnection();
 		return returnString;
 	}
-	
 
 	private String get_search_events_nearby(JSONObject jObj) throws JSONException, SQLException {
 		String p_USER_ID = jObj.getString("uid");
@@ -113,12 +101,11 @@ public class SearchEventsServlet extends QueryServlet {
 		DatabaseHandler handler = new DatabaseHandler();
 		String returnString = null;
 		int p_LIMIT = parametersObj.getInt("limit");
-		
+
 		returnString = handler.get_search_events_nearby_query(p_USER_ID, p_LIMIT);
 		handler.closeConnection();
 		return returnString;
 	}
-	
 
 	private String get_search_events_by_filter(JSONObject jObj) throws JSONException, SQLException {
 		String p_USER_ID = jObj.getString("uid");
@@ -127,8 +114,8 @@ public class SearchEventsServlet extends QueryServlet {
 		String returnString = null;
 		String p_KEYWORDS = parametersObj.getString("keywords");
 		String p_FILTERS = parametersObj.getString("filters");
-		
-		returnString = handler.get_search_events_by_filter_query(p_USER_ID, p_KEYWORDS,p_FILTERS);
+
+		returnString = handler.get_search_events_by_filter_query(p_USER_ID, p_KEYWORDS, p_FILTERS);
 		handler.closeConnection();
 		return returnString;
 	}

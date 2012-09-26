@@ -53,7 +53,7 @@ public abstract class QueryServlet extends HttpServlet {
 		return temporalComponent;
 	}
 	
-	protected static String GetSpacialComponent(String spacialCol, String[] args){
+	/*protected static String GetSpacialComponent(String spacialCol, String[] args){
 		String spacialComponent = new String();
 		switch (args[0]){
 		case "line"://args[1] = trajectory, args[2] = radius
@@ -67,5 +67,5 @@ public abstract class QueryServlet extends HttpServlet {
 			break;
 		}
 		return spacialComponent;
-	}
+	}*/
 }
