@@ -22,11 +22,25 @@ import edu.usc.csci587.icampusevent.objects.Response;
 public class SearchEventsServlet extends QueryServlet {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Gets the requests and executes the query.
+	 * 
+	 * @param request
+	 *            the client's request
+	 * @return a JSON response with status line and data/message
+	 * */
 	@Override
 	protected String executeQuery(HttpServletRequest request) {
 		JSONObject jObj = null;
 		try {
+			// Get the request parameter and create a new JSON object containing
+			// all data in the request
 			jObj = new JSONObject(request.getParameter("request"));
+
+			// Read request type from JSON. Must be one of the following:
+			// 1) search_events_by_area
+			// 2) search_events_nearby
+			// 3) search_events_by_filter
 			String req_type = jObj.getString("req_type");
 			if (req_type.compareToIgnoreCase("search_events_by_area") == 0)
 				return get_search_events_by_area_query(jObj);
@@ -35,7 +49,7 @@ public class SearchEventsServlet extends QueryServlet {
 			else if (req_type.compareToIgnoreCase("search_events_by_filter") == 0)
 				return get_search_events_by_filter(jObj);
 			else
-				return null;
+				return new Gson().toJson(new Response("Error", "Unrecognized search parameter type."));
 
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
@@ -44,18 +58,43 @@ public class SearchEventsServlet extends QueryServlet {
 		}
 	}
 
+	/**
+	 * Gets the requests and executes the spatial queries (by area).
+	 * 
+	 * @param jObj
+	 *            the JSON object containing all request parameters
+	 * @return a JSON response with status line and data/message
+	 * @throws JSONException
+	 *             when parameters are not set properly in jObj
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 * */
 	private String get_search_events_by_area_query(JSONObject jObj) throws JSONException, SQLException {
+
+		// Get the user id who sent the request
 		String p_USER_ID = jObj.getString("uid");
+
+		// Create JSON object with all query parameters
 		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
 		DatabaseHandler handler = new DatabaseHandler();
+
+		// The JSON result to return
 		String returnString = null;
+
+		// The spatial query object
 		JGeometry p_SHAPE = null;
+
+		// The shape type. Can be 'circle', 'rectangle' or 'trajectory'
 		String p_SHAPE_TYPE = null;
+
+		// The distance from a point or trajectory
 		double p_DISTANCE = 0.0;
 
 		String shape_type = parametersObj.getString("shape_type");
-		
-		if (shape_type.compareToIgnoreCase("circle") == 0){
+
+		// Set all appropriate arguments to pass to the DB stored procedures
+		// based on each shape type
+		if (shape_type.compareToIgnoreCase("circle") == 0) {
 			p_DISTANCE = parametersObj.getDouble("distance");
 
 			Double lat = parametersObj.getDouble("lat");
@@ -63,8 +102,7 @@ public class SearchEventsServlet extends QueryServlet {
 
 			p_SHAPE = new JGeometry(lon, lat, 8307);
 			p_SHAPE_TYPE = "circle";
-		}
-		else if (shape_type.compareToIgnoreCase("rectangle") == 0){
+		} else if (shape_type.compareToIgnoreCase("rectangle") == 0) {
 			Double minLat = parametersObj.getDouble("minLat");
 			Double minLon = parametersObj.getDouble("minLon");
 			Double maxLat = parametersObj.getDouble("maxLat");
@@ -72,8 +110,7 @@ public class SearchEventsServlet extends QueryServlet {
 
 			p_SHAPE = new JGeometry(minLon, minLat, maxLon, maxLat, 8307);
 			p_SHAPE_TYPE = "rectangle";
-		}
-		else if (shape_type.compareToIgnoreCase("trajectory") == 0){
+		} else if (shape_type.compareToIgnoreCase("trajectory") == 0) {
 			p_DISTANCE = parametersObj.getDouble("distance");
 
 			String trajectory = parametersObj.getString("trajectory").replace(" ", "");
@@ -90,31 +127,72 @@ public class SearchEventsServlet extends QueryServlet {
 			p_SHAPE_TYPE = "trajectory";
 		}
 
+		// Query the DB
 		returnString = handler.get_search_events_by_area_query(p_USER_ID, p_SHAPE, p_DISTANCE, p_SHAPE_TYPE);
 		handler.closeConnection();
 		return returnString;
 	}
 
+	/**
+	 * Gets the requests and executes the spatial queries (nearby).
+	 * 
+	 * @param jObj
+	 *            the JSON object containing all request parameters
+	 * @return a JSON response with status line and data/message
+	 * @throws JSONException
+	 *             when parameters are not set properly in jObj
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 * */
 	private String get_search_events_nearby(JSONObject jObj) throws JSONException, SQLException {
+		// Get the user id who sent the request
 		String p_USER_ID = jObj.getString("uid");
+
+		// Create JSON object with all query parameters
 		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
 		DatabaseHandler handler = new DatabaseHandler();
+
+		// The JSON result to return
 		String returnString = null;
+
+		// This value is the maximum number of rows returned
 		int p_LIMIT = parametersObj.getInt("limit");
 
+		// Query the DB
 		returnString = handler.get_search_events_nearby_query(p_USER_ID, p_LIMIT);
 		handler.closeConnection();
 		return returnString;
 	}
 
+	/**
+	 * Gets the requests and executes queries (by filtering).
+	 * 
+	 * @param jObj
+	 *            the JSON object containing all request parameters
+	 * @return a JSON response with status line and data/message
+	 * @throws JSONException
+	 *             when parameters are not set properly in jObj
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 * */
 	private String get_search_events_by_filter(JSONObject jObj) throws JSONException, SQLException {
+		// Get the user id who sent the request
 		String p_USER_ID = jObj.getString("uid");
+		
+		// Create JSON object with all query parameters
 		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
 		DatabaseHandler handler = new DatabaseHandler();
+		
+		// The JSON result to return
 		String returnString = null;
+		
+		// Specifies the keywords
 		String p_KEYWORDS = parametersObj.getString("keywords");
+		
+		// Specifies other filters
 		String p_FILTERS = parametersObj.getString("filters");
 
+		// Query the DB
 		returnString = handler.get_search_events_by_filter_query(p_USER_ID, p_KEYWORDS, p_FILTERS);
 		handler.closeConnection();
 		return returnString;
