@@ -35,7 +35,7 @@ public class DatabaseHandler {
 	protected OracleConnection connection;
 
 	/**
-	 * 
+	 * Creates a new connection instance
 	 */
 	public DatabaseHandler() {
 		String url = URL + HOST + ":" + PORT + ":" + DBNAME;
@@ -49,6 +49,11 @@ public class DatabaseHandler {
 
 	}
 
+	/****************************************************************************************************************/
+
+	/**
+	 * Closes the open connection
+	 */
 	public void closeConnection() {
 		if (this.connection != null) {
 			try {
@@ -60,52 +65,39 @@ public class DatabaseHandler {
 		}
 	}
 
+	/****************************************************************************************************************/
+
+	/**
+	 * Returns if there is a connection
+	 * 
+	 * @return true if we are connected to DB, otherwise false
+	 */
 	public boolean isConnected() {
 		return this.connection == null;
 	}
 
-	public boolean insertRecordToDB(String username, String randomstring, long pubdate) {
-		if (this.connection == null) {
-			return false;
-		}
-		String sqlStmt = "INSERT INTO EXAMPLE VALUES (?,?,?)";
-		try {
-			PreparedStatement pstmt = this.connection.prepareStatement(sqlStmt);
+	/****************************************************************************************************************/
+	/****************************************************************************************************************/
 
-			pstmt.setString(1, username);
-			pstmt.setString(2, randomstring);
-			pstmt.setLong(3, pubdate);
-			pstmt.execute();
-			pstmt.close();
-			return true;
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-			return false;
-		}
-	}
-
-	public List<String> retrieveAllRecords() {
-		if (this.connection == null) {
-			return null;
-		}
-		String sqlStmt = "SELECT * FROM USERS";
-
-		try {
-			PreparedStatement pstmt = this.connection.prepareStatement(sqlStmt);
-			ResultSet rs = pstmt.executeQuery();
-			List<String> ret = new ArrayList<String>();
-			while (rs != null && rs.next()) {
-				String userid = rs.getString("USER_ID");
-				ret.add(userid);
-			}
-			pstmt.close();
-			return ret;
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-			return null;
-		}
-	}
-
+	/**
+	 * Does a range query on events
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @param shape
+	 *            the spatial object to relate event with. Can be point,
+	 *            rectangle area or trajectory
+	 * @param p_DISTANCE
+	 *            the distance takes effect when shape is point or trajectory.
+	 *            Is like a radius that covers an extended area.
+	 * @param p_SHAPE_TYPE
+	 *            defines the shape type we pass in shape, i.e. point, rectangle
+	 *            or trajectory
+	 * 
+	 * @return a JSON object containing the events results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
 	public String get_search_events_by_area_query(String p_USER_ID, JGeometry shape, double p_DISTANCE, String p_SHAPE_TYPE) throws SQLException {
 
 		Response resp = null;
@@ -141,6 +133,20 @@ public class DatabaseHandler {
 		return new Gson().toJson(resp);
 	}
 
+	/****************************************************************************************************************/
+
+	/**
+	 * Does a nearest neighbor query on events
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @param p_LIMIT
+	 *            the maximum number of nearest events to return
+	 * 
+	 * @return a JSON object containing the events results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
 	public String get_search_events_nearby_query(String p_USER_ID, int p_LIMIT) throws SQLException {
 		Response resp = null;
 
@@ -172,6 +178,21 @@ public class DatabaseHandler {
 		return new Gson().toJson(resp);
 	}
 
+	/****************************************************************************************************************/
+
+	/**
+	 * Does a filter query on events
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @param p_KEYWORDS
+	 *            the keywords
+	 * @param p_FILTERS
+	 *            other filters defined by user
+	 * @return a JSON object containing the events results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
 	public String get_search_events_by_filter_query(String p_USER_ID, String p_KEYWORDS, String p_FILTERS) throws SQLException {
 		Response resp = null;
 
@@ -204,6 +225,18 @@ public class DatabaseHandler {
 		return new Gson().toJson(resp);
 	}
 
+	/****************************************************************************************************************/
+
+	/**
+	 * Creates a new List of Events and adds all relevant event details in each
+	 * event object.
+	 * 
+	 * @param rs
+	 *            the result set returned by a search query
+	 * @return a List of Events
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
 	private List<Event> getEventsFromResultSet(ResultSet rs) throws SQLException {
 		List<Event> EventsList = new ArrayList<Event>();
 
@@ -233,6 +266,45 @@ public class DatabaseHandler {
 		return EventsList;
 	}
 
+	/****************************************************************************************************************/
+	/****************************************************************************************************************/
+
+	/**
+	 * Updates the location of the user
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the update
+	 * @param p_LOCATION
+	 *            the new user location
+	 * @return a JSON object containing the update result
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String do_location_update_query(String p_USER_ID, JGeometry point) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_UPDATE_USER_LOCATION(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		STRUCT p_LOCATION = JGeometry.store(point, connection);
+		proc.setObject("p_LOCATION", p_LOCATION);
+
+		proc.executeUpdate();
+
+		proc.close();
+
+		resp = new Response("Success", "Location updated");
+
+		return new Gson().toJson(resp);
+	}
+
+	/****************************************************************************************************************/
+	/****************************************************************************************************************/
+
 	public boolean test(JGeometry shape) {
 		if (this.connection == null) {
 			return false;
@@ -252,5 +324,6 @@ public class DatabaseHandler {
 		}
 
 	}
+	/****************************************************************************************************************/
 
 }

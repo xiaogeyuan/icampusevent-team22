@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.google.gson.Gson;
 
 import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
+import edu.usc.csci587.icampusevent.helpers.QueryServlet;
 import edu.usc.csci587.icampusevent.objects.Response;
 
 /**
