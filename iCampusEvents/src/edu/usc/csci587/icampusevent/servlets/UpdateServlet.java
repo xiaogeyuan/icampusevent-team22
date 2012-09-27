@@ -48,27 +48,23 @@ public class UpdateServlet extends PostServlet {
 
 			// Read request type from JSON. Must be one of the following:
 			// 1) location_update
-			// 2) join_event
-			// 3) unjoin_event
-			// 4) checkin_event
+			// 2) event_update
 			String req_type = jObj.getString("req_type");
 			if (req_type.compareToIgnoreCase("location_update") == 0)
 				return do_location_update(jObj);
-			else if (req_type.compareToIgnoreCase("join_event") == 0)
-				return do_join_event(jObj);
-			else if (req_type.compareToIgnoreCase("unjoin_event") == 0)
-				return do_unjoin_event(jObj);
-			else if (req_type.compareToIgnoreCase("checkin_event") == 0)
-				return do_checkin_event(jObj);
+			else if (req_type.compareToIgnoreCase("event_update") == 0)
+				return do_event_update(jObj);
 			else
 				return new Gson().toJson(new Response("Error", "Unrecognized search parameter type."));
 
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
 		} catch (SQLException e) {
+			/** TODO Handle specific DB errors **/
 			return new Gson().toJson(new Response("Error", "Unable to reach server. Try again later."));
 		}
 	}
+
 	/****************************************************************************************************************/
 
 	/**
@@ -93,6 +89,7 @@ public class UpdateServlet extends PostServlet {
 		// The JSON result to return
 		String returnString = null;
 
+		/** TODO Check lat lon**/
 		// Get the new coordinates
 		double lat = parametersObj.getDouble("lat");
 		double lon = parametersObj.getDouble("lon");
@@ -106,10 +103,13 @@ public class UpdateServlet extends PostServlet {
 
 		return returnString;
 	}
+
 	/****************************************************************************************************************/
 
 	/**
-	 * User joins event
+	 * Update user for an event. The user can join, unjoin or check in the
+	 * event. In order to check in to an event the user is physically to the
+	 * location of the event and already joined it.
 	 * 
 	 * @param jObj
 	 *            the JSON object containing all request parameters
@@ -119,7 +119,7 @@ public class UpdateServlet extends PostServlet {
 	 * @throws SQLException
 	 *             when DB connection throws exception
 	 * */
-	private String do_join_event(JSONObject jObj) throws JSONException, SQLException {
+	private String do_event_update(JSONObject jObj) throws JSONException, SQLException {
 		// Get the user id who sent the request
 		String p_USER_ID = jObj.getString("uid");
 
@@ -131,82 +131,25 @@ public class UpdateServlet extends PostServlet {
 		String returnString = null;
 
 		// Get the new coordinates
-		long p_EVENT_ID = parametersObj.getInt("eid");
+		long p_EVENT_ID = parametersObj.getLong("eid");
 
-		// Query the DB
-		returnString = handler.do_join_event_query(p_USER_ID, p_EVENT_ID);
+		// Get the type of event update
+		String type = parametersObj.getString("type");
 
-		handler.closeConnection();
-
-		return returnString;
-	}
-	/****************************************************************************************************************/
-
-	/**
-	 * User unjoins event
-	 * 
-	 * @param jObj
-	 *            the JSON object containing all request parameters
-	 * @return a JSON response with status line and data/message
-	 * @throws JSONException
-	 *             when parameters are not set properly in jObj
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 * */
-	private String do_unjoin_event(JSONObject jObj) throws JSONException, SQLException {
-		// Get the user id who sent the request
-		String p_USER_ID = jObj.getString("uid");
-
-		// Create JSON object with all query parameters
-		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
-		DatabaseHandler handler = new DatabaseHandler();
-
-		// The JSON result to return
-		String returnString = null;
-
-		// Get the new coordinates
-		long p_EVENT_ID = parametersObj.getInt("eid");
-
-		// Query the DB
-		returnString = handler.do_unjoin_event_query(p_USER_ID, p_EVENT_ID);
+		// Read the event update type from JSON. Must be one of the following:
+		// 1) join
+		// 2) unjoin
+		// 3) checkin
+		if (type.compareToIgnoreCase("join") == 0)
+			returnString = handler.do_join_event_query(p_USER_ID, p_EVENT_ID);
+		else if (type.compareToIgnoreCase("unjoin") == 0)
+			returnString = handler.do_unjoin_event_query(p_USER_ID, p_EVENT_ID);
+		else if (type.compareToIgnoreCase("checkin") == 0)
+			returnString = handler.do_checkin_event_query(p_USER_ID, p_EVENT_ID);
 
 		handler.closeConnection();
 
 		return returnString;
 	}
-	/****************************************************************************************************************/
 
-	/**
-	 * User checks in to an event. That means that he is physically to the
-	 * location of the event
-	 * 
-	 * @param jObj
-	 *            the JSON object containing all request parameters
-	 * @return a JSON response with status line and data/message
-	 * @throws JSONException
-	 *             when parameters are not set properly in jObj
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 * */
-	private String do_checkin_event(JSONObject jObj) throws JSONException, SQLException {
-		// Get the user id who sent the request
-		String p_USER_ID = jObj.getString("uid");
-
-		// Create JSON object with all query parameters
-		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
-		DatabaseHandler handler = new DatabaseHandler();
-
-		// The JSON result to return
-		String returnString = null;
-
-		// Get the new coordinates
-		long p_EVENT_ID = parametersObj.getInt("eid");
-
-		// Query the DB
-		returnString = handler.do_checkin_event_query(p_USER_ID, p_EVENT_ID);
-
-		handler.closeConnection();
-
-		return returnString;
-	}
 }

@@ -55,9 +55,12 @@ public class SearchEventsServlet extends QueryServlet {
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
 		} catch (SQLException e) {
+			/** TODO Handle specific DB errors **/
 			return new Gson().toJson(new Response("Error", "Unable to reach server. Try again later."));
 		}
 	}
+
+	/****************************************************************************************************************/
 
 	/**
 	 * Gets the requests and executes the spatial queries (by area).
@@ -100,7 +103,6 @@ public class SearchEventsServlet extends QueryServlet {
 
 			Double lat = parametersObj.getDouble("lat");
 			Double lon = parametersObj.getDouble("lon");
-
 			p_SHAPE = new JGeometry(lon, lat, 8307);
 			p_SHAPE_TYPE = "circle";
 		} else if (shape_type.compareToIgnoreCase("rectangle") == 0) {
@@ -134,6 +136,8 @@ public class SearchEventsServlet extends QueryServlet {
 		return returnString;
 	}
 
+	/****************************************************************************************************************/
+
 	/**
 	 * Gets the requests and executes the spatial queries (nearby).
 	 * 
@@ -165,6 +169,8 @@ public class SearchEventsServlet extends QueryServlet {
 		return returnString;
 	}
 
+	/****************************************************************************************************************/
+
 	/**
 	 * Gets the requests and executes queries (by filtering).
 	 * 
@@ -179,17 +185,17 @@ public class SearchEventsServlet extends QueryServlet {
 	private String get_search_events_by_filter(JSONObject jObj) throws JSONException, SQLException {
 		// Get the user id who sent the request
 		String p_USER_ID = jObj.getString("uid");
-		
+
 		// Create JSON object with all query parameters
 		JSONObject parametersObj = new JSONObject(jObj.getString("par"));
 		DatabaseHandler handler = new DatabaseHandler();
-		
+
 		// The JSON result to return
 		String returnString = null;
-		
+
 		// Specifies the keywords
 		String p_KEYWORDS = parametersObj.getString("keywords");
-		
+
 		// Specifies other filters
 		String p_FILTERS = parametersObj.getString("filters");
 
@@ -198,4 +204,6 @@ public class SearchEventsServlet extends QueryServlet {
 		handler.closeConnection();
 		return returnString;
 	}
+	/****************************************************************************************************************/
+
 }
