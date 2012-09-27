@@ -265,7 +265,6 @@ public class DatabaseHandler {
 		}
 		return EventsList;
 	}
-
 	/****************************************************************************************************************/
 	/****************************************************************************************************************/
 
@@ -303,8 +302,107 @@ public class DatabaseHandler {
 	}
 
 	/****************************************************************************************************************/
+
+	/**
+	 * User joins event
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the update
+	 * @param p_EVENT_ID
+	 *            the event id to join
+	 * @return a JSON object containing the update result
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String do_join_event_query(String p_USER_ID, long p_EVENT_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_USER_JOINS_EVENT(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		proc.setLong("p_EVENT_ID", p_EVENT_ID);
+
+		proc.executeUpdate();
+
+		proc.close();
+
+		resp = new Response("Success", "You have joined the event");
+
+		return new Gson().toJson(resp);
+	}
 	/****************************************************************************************************************/
 
+	/**
+	 * User unjoins event
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the update
+	 * @param p_EVENT_ID
+	 *            the event id to unjoin
+	 * @return a JSON object containing the update result
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String do_unjoin_event_query(String p_USER_ID, long p_EVENT_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_USER_UNJOINS_EVENT(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		proc.setLong("p_EVENT_ID", p_EVENT_ID);
+
+		proc.executeUpdate();
+
+		proc.close();
+
+		resp = new Response("Success", "You have unjoined the event");
+
+		return new Gson().toJson(resp);
+	}
+	/****************************************************************************************************************/
+
+	/**
+	 * User checks in event
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the update
+	 * @param p_EVENT_ID
+	 *            the event id to check in
+	 * @return a JSON object containing the update result
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String do_checkin_event_query(String p_USER_ID, long p_EVENT_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_USER_CHECKIN_EVENT(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+		proc.setLong("p_EVENT_ID", p_EVENT_ID);
+
+		proc.executeUpdate();
+
+		proc.close();
+
+		resp = new Response("Success", "You have checked in the event");
+
+		return new Gson().toJson(resp);
+	}
+	/****************************************************************************************************************/
+	/****************************************************************************************************************/
+	
 	public boolean test(JGeometry shape) {
 		if (this.connection == null) {
 			return false;
@@ -325,5 +423,6 @@ public class DatabaseHandler {
 
 	}
 	/****************************************************************************************************************/
+
 
 }
