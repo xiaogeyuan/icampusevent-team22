@@ -56,7 +56,7 @@ public class UpdateServlet extends PostServlet {
 			else if (req_type.compareToIgnoreCase("event_update") == 0)
 				return do_event_update(jObj);
 			else
-				return new Gson().toJson(new Response("Error", "Unrecognized search parameter type."));
+				return new Gson().toJson(new Response("Error", "Unrecognized parameter type."));
 
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
