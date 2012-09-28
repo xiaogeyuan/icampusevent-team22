@@ -10,7 +10,7 @@ public class Event {
 	private String CATEGORY_NAME;
 	private String CATEGORY_DESCRIPTION;
 
-	private long EVENT_ID;
+	private String EVENT_ID;
 	private String EVENT_NAME;
 	private Timestamp START_DATE;
 	private Timestamp END_DATE;
@@ -29,7 +29,7 @@ public class Event {
 		return CATEGORY_DESCRIPTION;
 	}
 
-	public long getEVENT_ID() {
+	public String getEVENT_ID() {
 		return EVENT_ID;
 	}
 
@@ -69,7 +69,7 @@ public class Event {
 		return PARTICIPANTS;
 	}
 
-	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, long EVENT_ID, String EVENT_NAME, Timestamp START_DATE, Timestamp END_DATE,
+	public Event(String CATEGORY_NAME, String CATEGORY_DESCRIPTION, String EVENT_ID, String EVENT_NAME, Timestamp START_DATE, Timestamp END_DATE,
 			String EVENT_DESCRIPTION, String IMAGE_URL, String LINK, double[] LOCATION, Double DISTANCE_IN_MILES, int PARTICIPANTS) {
 		super();
 		this.CATEGORY_NAME = CATEGORY_NAME;

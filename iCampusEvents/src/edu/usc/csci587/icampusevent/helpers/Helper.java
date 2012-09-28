@@ -78,7 +78,7 @@ public class Helper {
 			String CATEGORY_NAME = rs.getString("CATEGORY_NAME");
 			String CATEGORY_DESCRIPTION = rs.getString("CATEGORY_DESCRIPTION");
 
-			long EVENT_ID = rs.getLong("EVENT_ID");
+			String EVENT_ID = rs.getString("EVENT_ID");
 			String EVENT_NAME = rs.getString("EVENT_NAME");
 			Timestamp START_DATE = rs.getTimestamp("START_DATE");
 			Timestamp END_DATE = rs.getTimestamp("END_DATE");
@@ -116,7 +116,7 @@ public class Helper {
 
 		while (rs != null && rs.next()) {
 
-			long CATEGORY_ID = rs.getLong("CATEGORY_ID");
+			String CATEGORY_ID = rs.getString("CATEGORY_ID");
 			String CATEGORY_NAME = rs.getString("CATEGORY_NAME");
 			String CATEGORY_DESCRIPTION = rs.getString("CATEGORY_DESCRIPTION");
 
