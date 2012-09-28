@@ -45,7 +45,7 @@ public class RetrieveServlet extends QueryServlet {
 			else if (req_type.compareToIgnoreCase("categories") == 0)
 				return get_categories(jObj);
 			else
-				return new Gson().toJson(new Response("Error", "Unrecognized search parameter type."));
+				return new Gson().toJson(new Response("Error", "Unrecognized parameter type."));
 
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
