@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import com.google.gson.Gson;
 
 import edu.usc.csci587.icampusevent.dbhandler.DatabaseHandler;
+import edu.usc.csci587.icampusevent.helpers.Helper;
 import edu.usc.csci587.icampusevent.helpers.PostServlet;
 import edu.usc.csci587.icampusevent.objects.Response;
 
@@ -60,8 +61,9 @@ public class UpdateServlet extends PostServlet {
 		} catch (JSONException e) {
 			return new Gson().toJson(new Response("Error", "Unable to parse request parameters."));
 		} catch (SQLException e) {
-			/** TODO Handle specific DB errors **/
-			return new Gson().toJson(new Response("Error", "Unable to reach server. Try again later."));
+			return new Gson().toJson(new Response("Error", Helper.getError(e)));
+		} catch (NullPointerException e) {
+			return new Gson().toJson(new Response("Error", "Some parameters are missing."));
 		}
 	}
 
@@ -89,11 +91,13 @@ public class UpdateServlet extends PostServlet {
 		// The JSON result to return
 		String returnString = null;
 
-		/** TODO Check lat lon**/
 		// Get the new coordinates
 		double lat = parametersObj.getDouble("lat");
 		double lon = parametersObj.getDouble("lon");
 
+		if (!Helper.validCoordinates(lat, lon))
+			return new Gson().toJson(new Response("Error", "Invalid Latitude or Longitude values."));
+		
 		JGeometry p_LOCATION = new JGeometry(lon, lat, 8307);
 
 		// Query the DB

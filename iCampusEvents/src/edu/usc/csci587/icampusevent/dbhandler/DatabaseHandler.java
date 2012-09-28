@@ -228,6 +228,129 @@ public class DatabaseHandler {
 	/****************************************************************************************************************/
 
 	/**
+	 * Queries and returns all joined events by this user
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @return a JSON object containing the joined events results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String get_joined_events_query(String p_USER_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_GET_USER_JOINED_EVENTS(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found. You have not joined an event so far.");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	/****************************************************************************************************************/
+
+	/**
+	 * Queries and returns all checked in events by this user
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @return a JSON object containing the checked in events results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String get_checked_in_events_query(String p_USER_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_GET_USER_CHECKED_IN_EVENTS(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found. You have not checked in to an event so far.");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	/****************************************************************************************************************/
+
+	/**
+	 * Queries and returns all categories
+	 * 
+	 * @param p_USER_ID
+	 *            the user id who requested the events
+	 * @return a JSON object containing the categories' results
+	 * @throws SQLException
+	 *             when DB connection throws exception
+	 */
+	public String get_categories_query(String p_USER_ID) throws SQLException {
+		Response resp = null;
+
+		if (this.connection == null) {
+			resp = new Response("Error", "Unable to reach server. Try again later.");
+			return new Gson().toJson(resp);
+		}
+
+		CallableStatement proc = connection.prepareCall("{ call SP_GET_CATEGORIES(?, ?) }");
+		proc.setString("p_USER_ID", p_USER_ID);
+
+		proc.registerOutParameter("o_CURSOR", OracleTypes.CURSOR);
+
+		proc.execute();
+
+		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
+
+		List<Event> EventsList = getEventsFromResultSet(rs);
+
+		proc.close();
+
+		if (EventsList.size() == 0) {
+			resp = new Response("Warning", "No results found.");
+		} else {
+			resp = new Response("Success", EventsList);
+		}
+
+		return new Gson().toJson(resp);
+	}
+
+	/****************************************************************************************************************/
+
+	/**
 	 * Creates a new List of Events and adds all relevant event details in each
 	 * event object.
 	 * 
@@ -253,6 +376,7 @@ public class DatabaseHandler {
 			String IMAGE_URL = rs.getString("IMAGE_URL");
 			String LINK = rs.getString("LINK");
 			Double DISTANCE_IN_MILES = rs.getDouble("DISTANCE_IN_MILES");
+			Integer PARTICIPANTS = rs.getInt("PARTICIPANTS");
 
 			STRUCT st = (oracle.sql.STRUCT) rs.getObject("LOCATION");
 			JGeometry LOCATION_POINT = JGeometry.load(st);
@@ -260,11 +384,12 @@ public class DatabaseHandler {
 			double[] LOCATION = LOCATION_POINT.getPoint();
 
 			Event e = new Event(CATEGORY_NAME, CATEGORY_DESCRIPTION, EVENT_ID, EVENT_NAME, START_DATE, END_DATE, EVENT_DESCRIPTION, IMAGE_URL, LINK,
-					LOCATION, DISTANCE_IN_MILES);
+					LOCATION, DISTANCE_IN_MILES, PARTICIPANTS);
 			EventsList.add(e);
 		}
 		return EventsList;
 	}
+
 	/****************************************************************************************************************/
 	/****************************************************************************************************************/
 
@@ -334,6 +459,7 @@ public class DatabaseHandler {
 
 		return new Gson().toJson(resp);
 	}
+
 	/****************************************************************************************************************/
 
 	/**
@@ -367,6 +493,7 @@ public class DatabaseHandler {
 
 		return new Gson().toJson(resp);
 	}
+
 	/****************************************************************************************************************/
 
 	/**
@@ -400,9 +527,10 @@ public class DatabaseHandler {
 
 		return new Gson().toJson(resp);
 	}
+
 	/****************************************************************************************************************/
 	/****************************************************************************************************************/
-	
+
 	public boolean test(JGeometry shape) {
 		if (this.connection == null) {
 			return false;
@@ -423,6 +551,5 @@ public class DatabaseHandler {
 
 	}
 	/****************************************************************************************************************/
-
 
 }
