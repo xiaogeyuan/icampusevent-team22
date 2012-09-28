@@ -8,15 +8,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.driver.OracleTypes;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 import com.google.gson.Gson;
-
 import edu.usc.csci587.icampusevent.helpers.Helper;
 import edu.usc.csci587.icampusevent.objects.Category;
 import edu.usc.csci587.icampusevent.objects.Event;
@@ -351,9 +348,6 @@ public class DatabaseHandler {
 		return new Gson().toJson(resp);
 	}
 
-	/****************************************************************************************************************/
-
-	
 
 	/****************************************************************************************************************/
 	/****************************************************************************************************************/
