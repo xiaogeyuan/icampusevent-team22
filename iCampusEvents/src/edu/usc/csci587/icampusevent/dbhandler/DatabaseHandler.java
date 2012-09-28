@@ -16,6 +16,9 @@ import oracle.jdbc.driver.OracleTypes;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 import com.google.gson.Gson;
+
+import edu.usc.csci587.icampusevent.helpers.Helper;
+import edu.usc.csci587.icampusevent.objects.Category;
 import edu.usc.csci587.icampusevent.objects.Event;
 import edu.usc.csci587.icampusevent.objects.Response;
 
@@ -120,7 +123,7 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Event> EventsList = Helper.getEventsFromResultSet(rs);
 
 		proc.close();
 
@@ -165,7 +168,7 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Event> EventsList = Helper.getEventsFromResultSet(rs);
 
 		proc.close();
 
@@ -212,7 +215,7 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Event> EventsList = Helper.getEventsFromResultSet(rs);
 
 		proc.close();
 
@@ -253,7 +256,7 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Event> EventsList = Helper.getEventsFromResultSet(rs);
 
 		proc.close();
 
@@ -294,7 +297,7 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Event> EventsList = Helper.getEventsFromResultSet(rs);
 
 		proc.close();
 
@@ -335,14 +338,14 @@ public class DatabaseHandler {
 
 		ResultSet rs = (ResultSet) proc.getObject("o_CURSOR");
 
-		List<Event> EventsList = getEventsFromResultSet(rs);
+		List<Category> CategoriesList = Helper.getCategoriesFromResultSet(rs);
 
 		proc.close();
 
-		if (EventsList.size() == 0) {
+		if (CategoriesList.size() == 0) {
 			resp = new Response("Warning", "No results found.");
 		} else {
-			resp = new Response("Success", EventsList);
+			resp = new Response("Success", CategoriesList);
 		}
 
 		return new Gson().toJson(resp);
@@ -350,45 +353,7 @@ public class DatabaseHandler {
 
 	/****************************************************************************************************************/
 
-	/**
-	 * Creates a new List of Events and adds all relevant event details in each
-	 * event object.
-	 * 
-	 * @param rs
-	 *            the result set returned by a search query
-	 * @return a List of Events
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 */
-	private List<Event> getEventsFromResultSet(ResultSet rs) throws SQLException {
-		List<Event> EventsList = new ArrayList<Event>();
-
-		while (rs != null && rs.next()) {
-
-			String CATEGORY_NAME = rs.getString("CATEGORY_NAME");
-			String CATEGORY_DESCRIPTION = rs.getString("CATEGORY_DESCRIPTION");
-
-			long EVENT_ID = rs.getLong("EVENT_ID");
-			String EVENT_NAME = rs.getString("EVENT_NAME");
-			Timestamp START_DATE = rs.getTimestamp("START_DATE");
-			Timestamp END_DATE = rs.getTimestamp("END_DATE");
-			String EVENT_DESCRIPTION = rs.getString("EVENT_DESCRIPTION");
-			String IMAGE_URL = rs.getString("IMAGE_URL");
-			String LINK = rs.getString("LINK");
-			Double DISTANCE_IN_MILES = rs.getDouble("DISTANCE_IN_MILES");
-			Integer PARTICIPANTS = rs.getInt("PARTICIPANTS");
-
-			STRUCT st = (oracle.sql.STRUCT) rs.getObject("LOCATION");
-			JGeometry LOCATION_POINT = JGeometry.load(st);
-
-			double[] LOCATION = LOCATION_POINT.getPoint();
-
-			Event e = new Event(CATEGORY_NAME, CATEGORY_DESCRIPTION, EVENT_ID, EVENT_NAME, START_DATE, END_DATE, EVENT_DESCRIPTION, IMAGE_URL, LINK,
-					LOCATION, DISTANCE_IN_MILES, PARTICIPANTS);
-			EventsList.add(e);
-		}
-		return EventsList;
-	}
+	
 
 	/****************************************************************************************************************/
 	/****************************************************************************************************************/
