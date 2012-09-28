@@ -45,12 +45,6 @@ public class SearchEventsServlet extends QueryServlet {
 				return get_search_events_nearby(jObj);
 			else if (req_type.compareToIgnoreCase("search_events_by_filter") == 0)
 				return get_search_events_by_filter(jObj);
-			else if (req_type.compareToIgnoreCase("joined_events") == 0)
-				return get_joined_events(jObj);
-			else if (req_type.compareToIgnoreCase("checked_in_events") == 0)
-				return get_checked_in_events(jObj);
-			else if (req_type.compareToIgnoreCase("categories") == 0)
-				return get_categories(jObj);
 			else
 				return new Gson().toJson(new Response("Error", "Unrecognized search parameter type."));
 
@@ -209,87 +203,5 @@ public class SearchEventsServlet extends QueryServlet {
 	}
 
 	/****************************************************************************************************************/
-
-	/**
-	 * Gets the events that the user has joined so far
-	 * 
-	 * @param jObj
-	 *            the JSON object containing all request parameters
-	 * @return a JSON response with status line and data/message
-	 * @throws JSONException
-	 *             when parameters are not set properly in jObj
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 * */
-	private String get_joined_events(JSONObject jObj) throws JSONException, SQLException {
-		// Get the user id who sent the request
-		String p_USER_ID = jObj.getString("uid");
-
-		DatabaseHandler handler = new DatabaseHandler();
-
-		// The JSON result to return
-		String returnString = null;
-
-		// Query the DB
-		returnString = handler.get_joined_events_query(p_USER_ID);
-		handler.closeConnection();
-		return returnString;
-	}
-
-	/****************************************************************************************************************/
-
-	/**
-	 * Gets the events that the user has checked in so far
-	 * 
-	 * @param jObj
-	 *            the JSON object containing all request parameters
-	 * @return a JSON response with status line and data/message
-	 * @throws JSONException
-	 *             when parameters are not set properly in jObj
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 * */
-	private String get_checked_in_events(JSONObject jObj) throws JSONException, SQLException {
-		// Get the user id who sent the request
-		String p_USER_ID = jObj.getString("uid");
-
-		DatabaseHandler handler = new DatabaseHandler();
-
-		// The JSON result to return
-		String returnString = null;
-
-		// Query the DB
-		returnString = handler.get_checked_in_events_query(p_USER_ID);
-		handler.closeConnection();
-		return returnString;
-	}
-
-	/****************************************************************************************************************/
-
-	/**
-	 * Gets all the event's categories
-	 * 
-	 * @param jObj
-	 *            the JSON object containing all request parameters
-	 * @return a JSON response with status line and data/message
-	 * @throws JSONException
-	 *             when parameters are not set properly in jObj
-	 * @throws SQLException
-	 *             when DB connection throws exception
-	 * */
-	private String get_categories(JSONObject jObj) throws JSONException, SQLException {
-		// Get the user id who sent the request
-		String p_USER_ID = jObj.getString("uid");
-
-		DatabaseHandler handler = new DatabaseHandler();
-
-		// The JSON result to return
-		String returnString = null;
-
-		// Query the DB
-		returnString = handler.get_categories_query(p_USER_ID);
-		handler.closeConnection();
-		return returnString;
-	}
 
 }

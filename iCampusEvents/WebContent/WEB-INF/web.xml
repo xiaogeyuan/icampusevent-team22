@@ -19,7 +19,6 @@
     <servlet-name>SearchEventsServlet</servlet-name>
     <url-pattern>/SearchEvents</url-pattern>
   </servlet-mapping>
-  
   <servlet>
     <description></description>
     <display-name>UpdateServlet</display-name>
@@ -29,5 +28,16 @@
   <servlet-mapping>
     <servlet-name>UpdateServlet</servlet-name>
     <url-pattern>/Update</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <description></description>
+    <display-name>RetrieveServlet</display-name>
+    <servlet-name>RetrieveServlet</servlet-name>
+    <servlet-class>edu.usc.csci587.icampusevent.servlets.RetrieveServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>RetrieveServlet</servlet-name>
+    <url-pattern>/Retrieve</url-pattern>
   </servlet-mapping>
 </web-app>
